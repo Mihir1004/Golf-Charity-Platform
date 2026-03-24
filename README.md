@@ -1,36 +1,143 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Fairway For Good - Golf Charity Subscription Platform
 
-## Getting Started
+Production-oriented full-stack implementation of the Digital Heroes PRD.
 
-First, run the development server:
+## What This App Covers
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Public landing page with impact-first UX and clear subscription CTA.
+- Subscriber flow:
+  - Register/login
+  - Subscription selection (monthly/yearly)
+  - 5-score Stableford rolling storage (1-45)
+  - Charity preference + independent donations
+  - Winnings and proof submission
+- Admin flow:
+  - Analytics summary
+  - Draw simulation/publishing (random + algorithmic)
+  - Charity CRUD
+  - Winner verification and payout tracking
+  - User management and subscription status controls
+- Structured PostgreSQL schema for Supabase and Vercel deployment readiness.
+
+## Tech Stack
+
+- `Next.js 16` (App Router, TypeScript)
+- `Prisma` + PostgreSQL (Supabase-ready)
+- `Tailwind CSS v4`
+- `Zod` validations
+- Cookie + JWT session auth (`jsonwebtoken`, `bcryptjs`)
+
+## Project Structure
+
+```txt
+src/
+  app/
+    page.tsx
+    login/page.tsx
+    register/page.tsx
+    dashboard/*                # Subscriber panel pages
+    admin/*                    # Admin panel pages
+    actions/logout/route.ts
+  components/
+    action-feedback.tsx
+    auth-card.tsx
+    top-nav.tsx
+    panel.tsx
+    stat-card.tsx
+  lib/
+    auth.ts
+    constants.ts
+    page-params.ts
+    prisma.ts
+    utils.ts
+    validators.ts
+  server/
+    actions/*                  # Server form actions
+    services/*                 # Business/domain services
+prisma/
+  schema.prisma
+  seed.ts
+  supabase-schema.sql
+docs/
+  architecture.md
+  prd-checklist.md
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Local Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Install dependencies:
+   ```bash
+   npm install
+   ```
+2. Create env:
+   ```bash
+   cp .env.example .env
+   ```
+3. Set `DATABASE_URL` and `JWT_SECRET` in `.env`.
+   - `JWT_SECRET` should be at least 16 characters.
+4. Generate Prisma client:
+   ```bash
+   npm run prisma:generate
+   ```
+5. Apply schema (recommended for Supabase SQL editor):
+   - Run `prisma/supabase-schema.sql` in Supabase SQL Editor.
+6. Seed sample data:
+   ```bash
+   npm run prisma:seed
+   ```
+   If your environment blocks `tsx` process spawning, use SQL fallback:
+   ```bash
+   psql -h localhost -U postgres -d golf_charity_platform -f prisma/seed-local.sql
+   ```
+7. Run dev server:
+   ```bash
+   npm run dev
+   ```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Seed Credentials
 
-## Learn More
+- Admin: `admin@fairwayforgood.test` / `Admin@12345`
+- Subscriber: `player@fairwayforgood.test` / `Player@12345`
 
-To learn more about Next.js, take a look at the following resources:
+## Vercel Deployment (New Account Constraint Friendly)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. Create a **new Supabase project**.
+2. Open SQL Editor and run:
+   - `prisma/supabase-schema.sql`
+3. (Optional) Run local seed against Supabase DB:
+   ```bash
+   npm run prisma:seed
+   ```
+4. Create a **new Vercel account/project** and import repo.
+5. Add environment variables in Vercel:
+   - `DATABASE_URL`
+   - `JWT_SECRET`
+   - `APP_URL` = deployed domain (e.g. `https://your-app.vercel.app`)
+6. Deploy.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Scripts
 
-## Deploy on Vercel
+- `npm run dev` - Start local development
+- `npm run build` - Production build
+- `npm run lint` - Linting
+- `npm run typecheck` - TypeScript checks
+- `npm run check` - Lint + typecheck + tests
+- `npm run test` - Unit + integration tests with coverage
+- `npm run test:watch` - Watch mode for tests
+- `npm run audit:prod` - Production dependency vulnerability scan
+- `npm run prisma:generate` - Generate Prisma client
+- `npm run prisma:push` - Apply Prisma schema directly to DB
+- `npm run prisma:migrate` - Apply migrations (if using migrations workflow)
+- `npm run prisma:seed` - Seed demo data
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## PRD Notes
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Draw pool split enforced at `40/35/25` for `5/4/3` matches.
+- Jackpot rollover logic included when no 5-match winner.
+- Only last 5 scores are retained per user.
+- Winner flow supports proof upload, admin review, and payout status updates.
+
+See detailed mapping in:
+- `docs/prd-checklist.md`
+- `docs/architecture.md`
+- `docs/testing.md`
