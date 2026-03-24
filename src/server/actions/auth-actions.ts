@@ -11,7 +11,7 @@ import { loginSchema, registerSchema } from "@/lib/validators";
 import { authenticateUser, registerUser } from "@/server/services/user-service";
 
 const DATABASE_UNAVAILABLE_MESSAGE =
-  "Database unavailable. Start PostgreSQL or set a valid DATABASE_URL.";
+  "Database unavailable. Start PostgreSQL or set valid POSTGRES_PRISMA_URL and POSTGRES_URL_NON_POOLING values.";
 
 export async function registerAction(formData: FormData) {
   const parsed = registerSchema.safeParse({

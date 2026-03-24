@@ -17,12 +17,12 @@ Production-oriented full-stack implementation of the Digital Heroes PRD.
   - Charity CRUD
   - Winner verification and payout tracking
   - User management and subscription status controls
-- Structured PostgreSQL schema for Supabase and Vercel deployment readiness.
+- Structured PostgreSQL schema for Vercel Marketplace providers (Neon, Supabase, etc.).
 
 ## Tech Stack
 
 - `Next.js 16` (App Router, TypeScript)
-- `Prisma` + PostgreSQL (Supabase-ready)
+- `Prisma` + PostgreSQL (Vercel Marketplace/Supabase-ready)
 - `Tailwind CSS v4`
 - `Zod` validations
 - Cookie + JWT session auth (`jsonwebtoken`, `bcryptjs`)
@@ -73,14 +73,17 @@ docs/
    ```bash
    cp .env.example .env
    ```
-3. Set `DATABASE_URL` and `JWT_SECRET` in `.env`.
+3. Set `POSTGRES_PRISMA_URL`, `POSTGRES_URL_NON_POOLING`, and `JWT_SECRET` in `.env`.
    - `JWT_SECRET` should be at least 16 characters.
 4. Generate Prisma client:
    ```bash
    npm run prisma:generate
    ```
-5. Apply schema (recommended for Supabase SQL editor):
-   - Run `prisma/supabase-schema.sql` in Supabase SQL Editor.
+5. Apply schema:
+   ```bash
+   npm run prisma:push
+   ```
+   For Supabase SQL Editor workflow, you can also run `prisma/supabase-schema.sql`.
 6. Seed sample data:
    ```bash
    npm run prisma:seed
@@ -99,20 +102,24 @@ docs/
 - Admin: `admin@fairwayforgood.test` / `Admin@12345`
 - Subscriber: `player@fairwayforgood.test` / `Player@12345`
 
-## Vercel Deployment (New Account Constraint Friendly)
+## Vercel Deployment (App + Hosted Postgres)
 
-1. Create a **new Supabase project**.
-2. Open SQL Editor and run:
-   - `prisma/supabase-schema.sql`
-3. (Optional) Run local seed against Supabase DB:
+1. Create/import this repo as a Vercel project.
+2. In Vercel, open the project and add a Postgres provider from Marketplace (Neon recommended).
+3. Add app environment variables in Vercel:
+   - `POSTGRES_PRISMA_URL` = pooled Prisma URL
+   - `POSTGRES_URL_NON_POOLING` = non-pooled/direct URL
+   - (optional compatibility) `DATABASE_URL` = `POSTGRES_PRISMA_URL`, `DIRECT_URL` = `POSTGRES_URL_NON_POOLING`
+   - `JWT_SECRET` = random 32+ char secret
+   - `APP_URL` = production URL (for example `https://your-app.vercel.app`)
+4. Run schema once against production DB:
+   ```bash
+   npm run prisma:push
+   ```
+5. (Optional) Seed initial demo data:
    ```bash
    npm run prisma:seed
    ```
-4. Create a **new Vercel account/project** and import repo.
-5. Add environment variables in Vercel:
-   - `DATABASE_URL`
-   - `JWT_SECRET`
-   - `APP_URL` = deployed domain (e.g. `https://your-app.vercel.app`)
 6. Deploy.
 
 ## Scripts

@@ -17,9 +17,10 @@ export function isDatabaseConnectivityError(error: unknown): boolean {
 }
 
 export function isPlaceholderDatabaseUrl(): boolean {
-  const url = process.env.DATABASE_URL ?? "";
+  const url = process.env.DATABASE_URL ?? process.env.POSTGRES_PRISMA_URL ?? "";
   return (
     url.includes("johndoe:randompassword@localhost:5432/mydb") ||
-    url.includes("postgres:[password]@db.[project-ref].supabase.co")
+    url.includes("postgres:[password]@db.[project-ref].supabase.co") ||
+    url.includes("username:password@ep-")
   );
 }
